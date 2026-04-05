@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Március 15 — Beszédelemzés 2025</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --mp: #e8c547;
+    --ov: #e05a4e;
+    --text: #e8e8e8;
+    --muted: #666;
+    --accent: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 2rem 2rem;
+    position: relative;
+  }
+
+  .header-tag {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  .candidates-strip {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .candidate-badge {
+    flex: 1;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .candidate-badge:last-child { border-right: none; }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-mp { background: var(--mp); box-shadow: 0 0 8px var(--mp); }
+  .dot-ov { background: var(--ov); box-shadow: 0 0 8px var(--ov); }
+
+  .candidate-name {
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+
+  .candidate-stats {
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 0.1rem;
+  }
+
+  /* SEARCH SECTION */
+  .search-section {
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+
+  .search-wrap {
+    display: flex;
+    gap: 0;
+    max-width: 600px;
+  }
+
+  #searchInput {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-right: none;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #searchInput:focus { border-color: var(--accent); }
+  #searchInput::placeholder { color: var(--muted); }
+
+  .search-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: opacity 0.2s;
+  }
+
+  .search-btn:hover { opacity: 0.85; }
+
+  /* RESULT CARDS */
+  #searchResult {
+    margin-top: 1.5rem;
+    display: none;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    max-width: 600px;
+  }
+
+  .result-card {
+    background: var(--surface);
+    padding: 1.25rem 1.5rem;
+  }
+
+  .result-candidate {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .result-candidate.mp { color: var(--mp); }
+  .result-candidate.ov { color: var(--ov); }
+
+  .result-word {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.25rem;
+  }
+
+  .result-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .result-bar-wrap {
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .result-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .result-bar.mp { background: var(--mp); }
+  .result-bar.ov { background: var(--ov); }
+
+  .result-per1000 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+
+  .result-per1000.mp { color: var(--mp); }
+  .result-per1000.ov { color: var(--ov); }
+
+  .per1000-label {
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .not-found {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* TOP WORDS SECTION */
+  .top-section {
+    padding: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .section-sub {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .top-list-title {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .top-list-title.mp { color: var(--mp); border-color: var(--mp); }
+  .top-list-title.ov { color: var(--ov); border-color: var(--ov); }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.6rem;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .bar-word {
+    font-size: 0.7rem;
+    width: 100px;
+    flex-shrink: 0;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    flex: 1;
+    height: 18px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    padding-left: 6px;
+    font-size: 0.55rem;
+    font-weight: 600;
+    color: var(--bg);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 2px;
+  }
+
+  .bar-fill.mp { background: var(--mp); }
+  .bar-fill.ov { background: var(--ov); }
+
+  .bar-num {
+    font-size: 0.6rem;
+    color: var(--muted);
+    width: 35px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .stat-cell {
+    padding: 1.5rem 2rem;
+    border-right: 1px solid var(--border);
+  }
+
+  .stat-cell:last-child { border-right: none; }
+
+  .stat-label {
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-val {
+    font-size: 1.4rem;
+    font-weight: 600;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .stat-val.mp { color: var(--mp); }
+  .stat-val.ov { color: var(--ov); }
+
+  .stat-desc {
+    font-size: 0.55rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  /* BROWSE TABLE */
+  .browse-section {
+    padding: 2rem;
+  }
+
+  .browse-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .browse-filter {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.75rem;
+    outline: none;
+    cursor: pointer;
+  }
+
+  .browse-filter:focus { border-color: var(--accent); }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+  }
+
+  th {
+    text-align: left;
+    padding: 0.5rem 1rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  th:hover { color: var(--accent); }
+
+  td {
+    padding: 0.45rem 1rem;
+    border-bottom: 1px solid #161616;
+    vertical-align: middle;
+  }
+
+  tr:hover td { background: var(--surface2); }
+
+  .td-word { color: var(--accent); font-weight: 600; }
+
+  .td-mp { color: var(--mp); }
+  .td-ov { color: var(--ov); }
+
+  .mini-bar {
+    display: inline-block;
+    height: 8px;
+    border-radius: 1px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  .pagination {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .page-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.6rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .page-btn:hover, .page-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+
+  .page-info {
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+  }
+
+  .footer-note {
+    font-size: 0.6rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .top-grid { grid-template-columns: 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .result-grid { grid-template-columns: 1fr; }
+    .candidates-strip { flex-direction: column; }
+    .candidate-badge { border-right: none; border-bottom: 1px solid var(--border); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">// Adatalapú beszédelemzés — Március 15, 2025</div>
+  <h1>Szavak &amp; Hatalom</h1>
+  <div class="subtitle">Magyar Péter vs. Orbán Viktor — ünnepi beszédek szófrekvencia-elemzése</div>
+</header>
+
+<div class="candidates-strip">
+  <div class="candidate-badge">
+    <div class="dot dot-mp"></div>
+    <div>
+      <div class="candidate-name">Magyar Péter</div>
+      <div class="candidate-stats">~58 perc · 3000 szó (tisztítás után)</div>
+    </div>
+  </div>
+  <div class="candidate-badge">
+    <div class="dot dot-ov"></div>
+    <div>
+      <div class="candidate-name">Orbán Viktor</div>
+      <div class="candidate-stats">~20–30 perc · 1173 szó (tisztítás után)</div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-cell">
+    <div class="stat-label">Magyar Péter — legtöbbször mondott szó</div>
+    <div class="stat-val mp">magyar</div>
+    <div class="stat-desc">49× · 16.3 / 1000 szó</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Orbán Viktor — legtöbbször mondott szó</div>
+    <div class="stat-val ov">mi</div>
+    <div class="stat-desc">17× · 14.5 / 1000 szó</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Magyar Péter — "Orbán" említések</div>
+    <div class="stat-val mp">12×</div>
+    <div class="stat-desc">4.0 / 1000 szó</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-label">Orbán Viktor — "Brüsszel" említések</div>
+    <div class="stat-val ov">9×</div>
+    <div class="stat-desc">7.7 / 1000 szó</div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-section">
+  <div class="search-label">// Szókeresés — mindkét beszédben</div>
+  <div class="search-wrap">
+    <input type="text" id="searchInput" placeholder="Írj be egy szót..." autocomplete="off" />
+    <button class="search-btn" onclick="doSearch()">Keresés</button>
+  </div>
+  <div id="searchResult">
+    <div class="result-grid">
+      <div class="result-card" id="card-mp">
+        <div class="result-candidate mp">Magyar Péter</div>
+        <div class="result-word" id="word-mp"></div>
+        <div class="result-count" id="count-mp"></div>
+        <div class="result-bar-wrap"><div class="result-bar mp" id="bar-mp" style="width:0%"></div></div>
+        <div class="result-per1000 mp" id="per-mp"></div>
+        <div class="per1000-label">/ 1000 szó</div>
+      </div>
+      <div class="result-card" id="card-ov">
+        <div class="result-candidate ov">Orbán Viktor</div>
+        <div class="result-word" id="word-ov"></div>
+        <div class="result-count" id="count-ov"></div>
+        <div class="result-bar-wrap"><div class="result-bar ov" id="bar-ov" style="width:0%"></div></div>
+        <div class="result-per1000 ov" id="per-ov"></div>
+        <div class="per1000-label">/ 1000 szó</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP 15 CHARTS -->
+<div class="top-section">
+  <div class="section-header">
+    <div class="section-title">Top 15 szó</div>
+    <div class="section-sub">// normalizálva · per 1000 szó</div>
+  </div>
+  <div class="top-grid">
+    <div>
+      <div class="top-list-title mp">Magyar Péter</div>
+      <div id="chart-mp"></div>
+    </div>
+    <div>
+      <div class="top-list-title ov">Orbán Viktor</div>
+      <div id="chart-ov"></div>
+    </div>
+  </div>
+</div>
+
+<!-- BROWSE TABLE -->
+<div class="browse-section">
+  <div class="section-header">
+    <div class="section-title">Teljes szólista</div>
+    <div class="section-sub">// összes szó böngészése</div>
+  </div>
+  <div class="browse-controls">
+    <select class="browse-filter" id="sortSelect" onchange="renderTable()">
+      <option value="mp_per">Rendezés: Magyar Péter (csökkenő)</option>
+      <option value="ov_per">Rendezés: Orbán Viktor (csökkenő)</option>
+      <option value="word">Rendezés: ABC</option>
+      <option value="diff">Rendezés: Legnagyobb különbség</option>
+    </select>
+    <input type="text" class="browse-filter" id="tableSearch" placeholder="Szűrés szóra..." oninput="renderTable()" style="width:200px" />
+    <div class="page-info" id="tableCount"></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th onclick="setSortAndRender('word')">#&nbsp;&nbsp;Szó</th>
+          <th onclick="setSortAndRender('mp_per')">MP — darab</th>
+          <th onclick="setSortAndRender('mp_per')">MP — /1000</th>
+          <th onclick="setSortAndRender('ov_per')">OV — darab</th>
+          <th onclick="setSortAndRender('ov_per')">OV — /1000</th>
+          <th onclick="setSortAndRender('diff')">Különbség</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <div class="pagination" id="pagination"></div>
+</div>
+
+<footer>
+  <div class="footer-note">
+    Módszertan: stop word szűrés után fennmaradó szavak frekvenciaelemzése.<br>
+    Összehasonlítás normalizálva (per 1000 szó) a beszédhossz-különbség miatt.<br>
+    Forrás: 2025. március 15-i ünnepi beszédek leiratai.
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const MP_TOTAL = 3000;
+const OV_TOTAL = 1173;
+
+const mpData = {
+"magyar":49,"mi":23,"magyarok":22,"kell":18,"polgár":17,"el":15,"barátaim":15,"ők":13,"ma":12,"én":11,"28":11,"végre":11,"akartak":10,"szabad":10,"újra":10,"együtt":10,"nincs":10,"kedves":9,"hazánk":9,"ti":8,"tudják":8,"ország":8,"polgárok":8,"legyen":8,"mind":8,"még":8,"jár":8,"haza":8,"akinek":8,"szabadok":7,"háborút":7,"fogunk":7,"élni":7,"ember":7,"árad":7,"több":6,"van":6,"többé":6,"volna":6,"senki":6,"sok":6,"orbán":6,"szabadon":6,"őseink":6,"saját":6,"menni":6,"hazánkat":6,"is":6,"közös":6,"fiatal":6,"fel":6,"volt":5,"úgy":5,"valaki":5,"tenni":5,"tisza":5,"szabadság":5,"soha":5,"szabadságot":5,"szeretnénk":5,"országot":5,"nemcsak":5,"mit":5,"magyarországot":5,"megosztás":5,"múlt":5,"nap":5,"lenni":5,"nektek":5,"két":5,"hősök":5,"jó":5,"jöttök":5,"közben":5,"éppen":5,"fog":5,"év":5,"alattvalókat":5,"április":5,"dolgozni":5,"tudták":4,"többet":4,"tőletek":4,"tisza!":4,"tovább":4,"tudja":4,"utolsó":4,"számít":4,"népszavazás":4,"sokkal":4,"mondja":4,"mindent":4,"lehet":4,"legyünk":4,"minket":4,"leszünk":4,"lehessen":4,"magyarnak":4,"kérem":4,"jobb":4,"következő":4,"hazánkért":4,"jövő":4,"helyett":4,"higgyetek":4,"között":4,"fogjuk":4,"első":4,"egyszerű":4,"fiatalok":4,"elmúlt":4,"egyszerre":4,"engem":4,"emberek":4,"embert":4,"császár":4,"azokkal":4,"á":4,"24":4,"akarunk":4,"vár":3,"választják":3,"választás":3,"többen":3,"változásban":3,"viktor":3,"vagytok":3,"velem":3,"nép":3,"rettegő":3,"nézzetek":3,"szeretete":3,"sohasem":3,"szégyen":3,"orvost":3,"országban":3,"nyernünk":3,"része":3,"rabok":3,"magyarország":3,"lehettek":3,"napot":3,"mindannyian":3,"milyen":3,"mindazokért":3,"lemondani":3,"magunk":3,"megcsinálni":3,"marad":3,"nemzet":3,"közösen":3,"ide":3,"jöttek":3,"hatalom":3,"igen":3,"hazájában":3,"jól":3,"hazának":3,"ki":3,"hol":3,"életüket":3,"érzés":3,"erő":3,"elvegyék":3,"esküszöm":3,"elárulta":3,"félünk":3,"életem":3,"európai":3,"csodát":3,"bárhol":3,"akar":3,"akiket":3,"bírok":3,"1848":3,"adták":3,"akit":3,"akarok":3,"áá":3,"béke":3,"annál":3,"12-én":3,"abban":3,"1956-ban":3,"adjuk":3,"ebben":3,"változás":2,"uniós":2,"várjatok":2,"vigyétek":2,"választott":2,"tudunk":2,"tiszát":2,"teltek":2,"utat":2,"ügynököket":2,"választjuk":2,"támogatást":2,"valódi":2,"tisztes":2,"világoné":2,"vidéki":2,"tette":2,"történelem":2,"végig":2,"választásunk":2,"választhatja":2,"tudtak":2,"történet":2,"valami":2,"világom":2,"üzenetet":2,"vágyó":2,"út":2,"voltunk":2,"után":2,"új":2,"szép":2,"nincsenek":2,"nemzeti":2,"óra":2,"szabadságért":2,"óriási":2,"rólatok":2,"nevelő":2,"sehonnai":2,"nevezni":2,"sokan":2,"országért":2,"szavaz":2,"polgári":2,"őket":2,"politikai":2,"rongy":2,"pont":2,"sajtódobogó":2,"szól":2,"sem":2,"nők":2,"rajta":2,"sorsunkat":2,"rajtunk":2,"szabadságszerető":2,"rájuk":2,"szent":2,"reggeli":2,"szeretet":2,"régi":2,"szerették":2,"nézz":2,"reggel":2,"neki":2,"működő":2,"mögé":2,"leszek":2,"nagyon":2,"megpróbálhatnak":2,"más":2,"megtörni":2,"mondjátok":2,"mellett":2,"munka":2,"legjobb":2,"mégis":2,"mérgező":2,"nekünk":2,"lettünk":2,"mást":2,"miatt":2,"maguk":2,"milliárd":2,"mondjuk":2,"magyarországért":2,"megállítani":2,"leverték":2,"nagyobb":2,"lányok":2,"legyetek":2,"mindannyiunknak":2,"néhány":2,"maradni":2,"lesz":2,"mindegy":2,"megosztani":2,"március":2,"megnyerjük":2,"megmentjük":2,"hazában":2,"kapujában":2,"harcoltak":2,"gyűlölet":2,"kérdés":2,"hazát":2,"hazáért":2,"hergelés":2,"jövőt":2,"hét":2,"háborúval":2,"hallják":2,"kezét":2,"hírem":2,"így":2,"hiszünk":2,"há":2,"hit":2,"hazájáért":2,"határon":2,"júlia":2,"kicsit":2,"kávézás":2,"konzervatív":2,"kellett":2,"kormánya":2,"kérni":2,"hoz":2,"hatalomban":2,"hátrébb":2,"kinek":2,"hompitársaim":2,"korán":2,"honfitársaim":2,"hosszú":2,"hagyjuk":2,"felelősek":2,"előttünk":2,"ellen":2,"ennyit":2,"élete":2,"egyetlen":2,"éltek":2,"egymás":2,"egyedül":2,"emberekkel":2,"frissen":2,"emberséges":2,"félelem":2,"esküszünk":2,"félni":2,"eső":2,"férfiak":2,"egyet":2,"egymásra":2,"gyógymód":2,"előtti":2,"ezekben":2,"fölött":2,"ezüstér":2,"gyermekeink":2,"éljen":2,"feladata":2,"győzelmet":2,"csoda":2,"bennünket":2,"be":2,"drágább":2,"biztos":2,"eddig":2,"állni":2,"amiben":2,"alatt":2,"aminek":2,"alattvalók":2,"amint":2,"ajtón":2,"2026":2,"alig":2,"anyák":2,"ahhoz":2,"á!":2,"becsülete":2,"48":2,"békében":2,"árokás":2,"beszéljetek":2,"arról":2,"bitang":2,"1000":2,"borotválkozás":2,"1848-ban":2,"csinálni":2,"azt":2,"csodálatos":2,"aztán":2,"állam":2,"bal":2,"30":2,"állunk":2,"amelynek":2,"áruló":2,"vállalkozót":1,"visszavesszük":1,"velem?":1,"tiszta":1,"tele":1,"tiszteli":1,"védelmi":1,"tisztelnek":1,"tietek":1,"szüksége":1,"szükség":1,"tisztességesebb":1,"szólt":1,"tó":1,"tesszük":1,"született":1,"végigcsináltuk":1,"szülő":1,"vezényelt":1,"többek":1,"szórólap":1,"szuverenitásvédelem":1,"tiszára":1,"tá":1,"tekintetét":1,"többi":1,"teljesítmény":1,"többség":1,"választotta":1,"tőle":1,"valók":1,"tagadjuk":1,"várja":1,"tollal":1,"végérvényesen":1,"tör":1,"végső":1,"torkolatáig":1,"vérbe":1,"torkukon":1,"vezette":1,"török":1,"világa":1,"törökké":1,"világos":1,"találtunk":1,"vizsgálatra":1,"történelmet":1,"zászlókat":1,"történelmét":1,"vagyonadót":1,"történelmi":1,"vajon":1,"talán":1,"valamiért":1,"történhet":1,"választást":1,"törvény":1,"terén":1,"törvényt":1,"vállalkozását":1,"tótok":1,"való":1,"tam!":1,"területre":1,"továrisi":1,"vannak":1,"traja":1,"várnia":1,"trükkje":1,"végéjáró":1,"tudás":1,"végetér":1,"tudásból":1,"végigjárjuk":1,"tudatában":1,"veled":1,"tudhattam":1,"veletek":1,"szóljatok":1,"veterán":1,"tanárét":1,"vezetői":1,"tanárt":1,"szomszédotokkal":1,"tudjunk":1,"viktornak":1,"tudó":1,"világháborúkat":1,"tudom":1,"világon":1,"táncsicsok":1,"visszaszerzési":1,"tapasztalt":1,"víz":1,"tudtam":1,"tiszakormány":1,"tapra":1,"vonatkozik":1,"tükörbe":1,"zúgjon":1,"tükörképét":1,"vagyon":1,"tükrében":1,"tehetségét":1,"tükröződni":1,"vágyunk?":1,"túl":1,"valaha":1,"tulajdonkat":1,"telefonját":1,"túlélni":1,"válaszoltok":1,"túlerőnek":1,"választásokba":1,"túliak":1,"telne":1,"túlságosan":1,"szólt:":1,"tűnik":1,"téren":1,"tűrhetnek":1,"választottunk":1,"tűri":1,"vállalkozást":1,"tűrte":1,"valljuk":1,"tűztek":1,"termék":1,"ugrasztani":1,"területen":1,"tára":1,"változást":1,"ugyanazt":1,"vanabi":1,"ugyanez":1,"testvére":1,"ugyanúgy":1,"szomszédok":1,"ügyészt":1,"védelméről":1,"ügynökök":1,"vége":1,"tart":1,"végén":1,"szolgálni":1,"véget":1,"újabb":1,"tettünk":1,"újat":1,"végigdolgoznunk":1,"újjá":1,"tetvággyal":1,"újjáépítő":1,"vehetjük":1,"tartalékolás":1,"tetvágy":1,"újraindítjuk":1,"veleszületett":1,"úk":1,"velünk":1,"ukázok":1,"vérüket":1,"üldözhesse":1,"vetette":1,"üldözik":1,"vezetett":1,"unió":1,"vezetők":1,"tarthatnak":1,"vezetünk":1,"unokáink":1,"vigyetek":1,"unokákért":1,"tisz":1,"úr":1,"viktorokat":1,"uradalmat":1,"világban":1,"uralkodjék-e":1,"világnézete":1,"uralkodnak":1,"világomá":1,"uszítást":1,"szövetsége":1,"tartozunk":1,"vissza":1,"tavaszán":1,"visszaszorításával":1,"utánunk":1,"vitára":1,"tavaszi":1,"vizet":1,"utcáját":1,"tiszad":1,"tavaszt":1,"voltak":1,"teherviselés":1,"vonás":1,"üzenetét":1,"vonatra":1,"úzik":1,"zrinyi":1,"vágon":1,"vágyát":1,"tehet":1,"örökségért":1,"szerződések":1,"számára":1,"nézi":1,"segítségünket":1,"őseinktől":1,"nyugat":1,"ősi":1,"odáig":1,"össze":1,"sajtószabadság":1,"összefogunk":1,"semmihez":1,"összeköt":1,"sorban":1,"összetartozunk":1,"nyugodtabb":1,"osztrák":1,"szavalták":1,"öt":1,"önmagát":1,"őt":1,"ruszkig":1,"öten":1,"segéljen":1,"ott":1,"sejtésből":1,"ottét":1,"senkire":1,"otthona":1,"orosz":1,"papitársaim":1,"oroszok":1,"paragrafusok":1,"nyugdíjendelkezők":1,"páran":1,"szabadságvágyó":1,"páratlan":1,"szánják":1,"parlament":1,"szavazz":1,"pártján":1,"országává":1,"pedofil":1,"szeretné":1,"pénze":1,"rovarnak":1,"pénzét":1,"sajtodobogó":1,"percek":1,"sebeit":1,"percembereket":1,"segíteni":1,"pesten":1,"segítünk":1,"pesti":1,"örökké":1,"péter":1,"semmitől":1,"petőfi":1,"sikerrel":1,"petőfik":1,"nemzetnek":1,"pezsgővel":1,"nyitni":1,"pillanat":1,"sorsáért":1,"pillanatban":1,"sőt":1,"pirkadatkor":1,"nyugdíj":1,"nézni":1,"szabadságát":1,"polgár?":1,"olyasmit":1,"polgárasszony":1,"szabályok":1,"önmagunkról":1,"számítsanak":1,"polgárként":1,"szavaiknak":1,"nézték":1,"országát":1,"polgárok!":1,"széchenénnyik":1,"polgárok?":1,"szemünkbe":1,"polgárokat":1,"önkénteskedtek":1,"polgároké":1,"szeretetéről":1,"polgárokra":1,"nézett":1,"polgárt":1,"ősapáink":1,"onnan":1,"ruskig":1,"politikusoktól":1,"öreg":1,"ponfitársaim":1,"olyan":1,"öntudatos":1,"sándor":1,"pozíciókra":1,"sebeket":1,"próbálkozik":1,"segít":1,"próbálták":1,"segíti":1,"programnak":1,"segítsetek":1,"programunk":1,"örményül":1,"propaganda":1,"sejthettem":1,"propagandát":1,"semmiből":1,"provokálni":1,"semmilyen":1,"provokátorok":1,"népet":1,"pusztai":1,"senkitől":1,"rá":1,"sikerülhet":1,"rab":1,"örökül":1,"szinte":1,"sokáig":1,"szítani":1,"sokat":1,"szíve":1,"sok-sok":1,"oldalas":1,"sorsa":1,"szóban":1,"sorsukról":1,"órában":1,"sorsunkba":1,"nemzetet":1,"sötétségbe":1,"ráhívta":1,"szabaditársaim":1,"órájában":1,"szabadok?":1,"órákban":1,"nyughatnak":1,"órakor":1,"orránál":1,"rákentek":1,"szabadságra":1,"ránk":1,"szabadságunkat":1,"rápillant":1,"szabálynak":1,"rátok":1,"szabók":1,"szétválasztani":1,"ő":1,"szilárd":1,"számukra":1,"név":1,"szava":1,"orbáni":1,"szavakkal":1,"régóta":1,"szavát":1,"rémektől":1,"szavazni":1,"rendbe":1,"századok":1,"rendezvényére":1,"szegények":1,"rendezzük":1,"szemébe":1,"rendszert":1,"szennyező":1,"nézve":1,"szenvedélyünk":1,"rettegésben":1,"szépség":1,"orbánterv":1,"népszavazást":1,"rezsiszámlák":1,"szeretjük":1,"ördögi":1,"nevezzék":1,"romjain":1,"szerte":1,"őre":1,"széthúzás":1,"rontó":1,"rossz":1,"oktatás":1,"reggelén":1,"szív":1,"rabók":1,"szívfacsaró":1,"rabság":1,"szívünkben":1,"rabságot":1,"szokott":1,"rabságra":1,"szolgaföldben":1,"racionális":1,"ragadt":1,"mindenkihez":1,"lett":1,"lépjünk":1,"lezárhatta":1,"legyintettek":1,"lezárjuk":1,"lemossuk":1,"londonban":1,"napokban":1,"lophassanak":1,"mennie":1,"lopják":1,"legyünk-e":1,"lapot":1,"miniszterelnök":1,"magának":1,"lépésre":1,"magasba":1,"nagyonnagyon":1,"magatokért":1,"napvilágra":1,"magatokra":1,"nemzedék":1,"laptopja":1,"merészel":1,"láthatatlan":1,"kútból":1,"magunkat":1,"küzdjetek":1,"láthatja":1,"lélek":1,"magyaré":1,"módú":1,"magyarhoz":1,"mostanáig":1,"magyarjai":1,"múltban":1,"magyarként":1,"nagykanizsán":1,"látni":1,"napban":1,"látta":1,"napra":1,"magyarokat":1,"letól":1,"magyarokban":1,"külföldi":1,"magyaroknak":1,"menjetek":1,"láttak":1,"ment":1,"láttak-e":1,"mertek":1,"láttam":1,"miképp":1,"magyarul":1,"millió":1,"majd":1,"lehessünk":1,"makacs":1,"küzdöttek":1,"mandátumát":1,"mindenkorra":1,"mára":1,"minél":1,"láttatni":1,"mire":1,"maradhatnak":1,"mögött":1,"leépítése":1,"lépései":1,"maradt":1,"moszkvából":1,"lépésről":1,"legalább":1,"múltnak":1,"mutattatok":1,"mártontól":1,"lepstük":1,"legalacsonyabb":1,"nagyvilágban":1,"másképp":1,"napjában":1,"második":1,"lányodra":1,"mások":1,"napszámosok":1,"legbátrabban":1,"négy":1,"maximáljuk":1,"nekiveselkedünk":1,"meg":1,"nélküli":1,"legcsodálatosabb":1,"németek":1,"megalakuló":1,"nemzetegyesítés":1,"legdrágább":1,"különbség":1,"megbúvó":1,"mennyien":1,"leginkább":1,"mer":1,"megelőzhető":1,"legyenek":1,"megértettük":1,"különösen":1,"megfélemlítés":1,"míg":1,"megfoghatjuk":1,"mikor":1,"megfogtuk":1,"milliárdosokat":1,"meggyógyítjuk":1,"milliói":1,"meggyógyítsuk":1,"küzdenünk":1,"megint":1,"mindannyiunkat":1,"különböztetik":1,"lehetősége":1,"megkapja":1,"mindenki":1,"megléte":1,"mindenkire":1,"meglett":1,"mindennapján":1,"megmenteni":1,"mindörökre":1,"kristálytisztán":1,"minimum":1,"megmerevtek":1,"lelkesedéssel":1,"megmérgezhetnek":1,"lelkünket":1,"megmutatjuk":1,"lakásra":1,"megmutatnotok":1,"mohácstól":1,"megmutatták":1,"lakozik":1,"legképzettebb":1,"mondták":1,"megöl":1,"mostantól":1,"megőrzése":1,"mozdulatlanságban":1,"legkorutabb":1,"múlik":1,"legmagasabb":1,"múltat":1,"megosztását":1,"múltik":1,"megosztottság":1,"múlva":1,"megosztottságot":1,"munkatársaitokkal":1,"mégpedig":1,"nagy":1,"megpillantotta":1,"nagymamák":1,"legszebb":1,"láncnál":1,"megszüntetjük":1,"nagyvárosi":1,"megtanultuk":1,"láncot":1,"megtartása":1,"napfény":1,"megtennünk":1,"napjaira":1,"megtévesztés":1,"napon":1,"megtisztított":1,"nappal":1,"legszegényebb":1,"napról":1,"megváltozik":1,"napunk":1,"megváltoztat":1,"nato":1,"megvéd":1,"létét":1,"megvédi":1,"nekik":1,"megvezetett":1,"létrehozzuk":1,"megy":1,"nélkületek":1,"mékerékig":1,"nem":1,"mekkora":1,"nemesváron":1,"mellé":1,"németül":1,"legszentebb":1,"leváltani":1,"méltó":1,"lányt":1,"mélyén":1,"kérdezik":1,"hazajusson":1,"kiváltságosok":1,"hazudott":1,"kárpátmedencét":1,"hazugság":1,"kezünkbe":1,"hegyektől":1,"korában":1,"helyéről":1,"kapcsol":1,"hajót":1,"győzhetünk":1,"helyreállításával":1,"késő":1,"helyzetét":1,"kikötőbe":1,"hatalomvágyja":1,"komáromig":1,"hergelhetnek":1,"kormányzati":1,"hergelt":1,"jövőnket":1,"határok":1,"kard":1,"hétköznapi":1,"kastélyban":1,"hí":1,"keltek":1,"hiánya":1,"kéri":1,"hangot":1,"kéz":1,"hinni":1,"kiállok":1,"híréhez":1,"kisebb":1,"hátat":1,"kocintottak":1,"hírt":1,"házasodott":1,"hátra":1,"kórházaknak":1,"harmadik":1,"korszaka":1,"hitét":1,"halni":1,"hittek":1,"hatalmi":1,"hivatal":1,"kapnak":1,"hivatalt":1,"kardyban":1,"híven":1,"kart":1,"hívott":1,"katonák":1,"hívta":1,"hazánkban":1,"hogyan":1,"képernyőré":1,"hogyha":1,"kérdezzétek":1,"gyűlök":1,"került":1,"holdról":1,"készültem":1,"hölgyek":1,"kezdete":1,"hazaárólag":1,"hazánkról":1,"hónap":1,"kifogás":1,"hónapban":1,"házáról":1,"hónapok":1,"kiterjesztését":1,"hasonlítható":1,"kívül":1,"honnan":1,"költők":1,"honomitársaim":1,"komolyan":1,"hordunk":1,"kopogtatás":1,"horvátok":1,"körbeölitek":1,"hőseinket":1,"kormány":1,"gyűlöletplakátokra":1,"korrupció":1,"hosszan":1,"jönnek":1,"hazádra":1,"háborús":1,"hova":1,"jövőjét":1,"hasonlóan":1,"hazám":1,"hunyadiak":1,"kádár":1,"húzott":1,"kapcsolatok":1,"íá":1,"harag":1,"hazahozatalával":1,"kardunk":1,"idő":1,"kárhozottak":1,"idősebb":1,"kárpátokig":1,"idősek":1,"kártyán":1,"igazgatta":1,"katona":1,"igazságos":1,"gyűlöletkeltő":1,"igazunkért":1,"hazánkba":1,"hazahozzuk":1,"kelljen":1,"hazája":1,"kényszerítette":1,"ilona":1,"hagyták":1,"indíthat":1,"kérdeztek":1,"halljon":1,"haltak":1,"közé":1,"hazánkkal":1,"gyűlölni":1,"kerültél":1,"hát":1,"készen":1,"kossutok":1,"hagyja":1,"kötötte":1,"kézben":1,"követeljük":1,"hazánkra":1,"korszakot":1,"kgb-s":1,"körül":1,"ki:":1,"ismertek":1,"hazáról":1,"ismételjük":1,"kihasználta":1,"isten":1,"kimondott":1,"istenére":1,"kinevették":1,"istván":1,"kisvállalkozóit":1,"itthon":1,"kiváltságok":1,"janicsárjai":1,"kivetni":1,"janicsárok":1,"kmre":1,"hatalmaskodó":1,"kokárdát":1,"járni":1,"komáromban":1,"járó":1,"kommunista":1,"jártak":1,"konyec":1,"járunk":1,"kopogtat":1,"jász":1,"kora":1,"javaslom":1,"hazaszerető":1,"háború":1,"körbevesz":1,"hallottak":1,"kórházbezárásokra":1,"jobban":1,"harcoljunk":1,"jobboldali":1,"környezetében":1,"joga":1,"korszak":1,"hazájukért":1,"hazátok":1,"jómódúak":1,"hang":1,"iskolakezdési":1,"kovácsok":1,"győzelmével":1,"következmények":1,"írva":1,"h":1,"inkább":1,"középre":1,"innen":1,"közösből":1,"irányított":1,"közösség":1,"irányítsák-e":1,"kremölből":1,"írjátok":1,"írni":1,"féltek":1,"generációknak":1,"főispán":1,"egymáshoz":1,"felemelkedésének":1,"elnyomás":1,"elkövetett":1,"elő":1,"forrásától":1,"elődehez":1,"gyermekeit":1,"elődeik":1,"félnek":1,"elődeink":1,"fényesre":1,"először":1,"fogják":1,"előtt":1,"fontos":1,"egymásnak":1,"ft-ot":1,"egyébként":1,"gulyás":1,"elrabolt":1,"felelősségnek":1,"egymással":1,"felett":1,"elsötétült":1,"felősek":1,"eltaposandó":1,"felzárkóztatás":1,"egymástól":1,"feriket":1,"eltérítse":1,"fizetéséből":1,"eltökéltséggel":1,"fogok":1,"elutasít":1,"ellenkezőire":1,"egyre":1,"fordulhasson":1,"elveinket":1,"frissel":1,"elvett":1,"gazdagok":1,"elvisszük":1,"gondolt":1,"elvtársak":1,"gyerekei":1,"egyszer":1,"elmondjuk":1,"embere":1,"felelősségteljes":1,"embereink":1,"felemelte":1,"egészségügyet":1,"felhasználásával":1,"egyenlő":1,"eljön":1,"egyenlőség":1,"felsége":1,"emberségesebb":1,"felvidéken":1,"éjszaka":1,"fenyegető":1,"emeltek":1,"férfi":1,"emeltetek":1,"fiadra":1,"ékesíti":1,"fideszes":1,"ekkora":1,"fktelen":1,"ennél":1,"ellátás":1,"egyértelmű":1,"egyben":1,"építetek":1,"földkeresztségen":1,"épített":1,"fonál":1,"építjük":1,"fordít":1,"építő":1,"forradalmak":1,"építsük":1,"fotelben":1,"elárulása":1,"ftnyi":1,"épülő":1,"független":1,"érezheti":1,"gazdálkodók":1,"éreztem":1,"gondolj":1,"érezzék":1,"gondoltak":1,"érezzük":1,"gyáraktól":1,"érintő":1,"gyermek":1,"egyes":1,"gyermekét":1,"erőbeosztás":1,"gyógyulás":1,"erősebb":1,"felelősségre":1,"erőszakot":1,"felemelitek":1,"erről":1,"felemelő":1,"ért":1,"felépíteni":1,"érte":1,"felgyőzelemre":1,"érvényesülhessen":1,"felhasználható":1,"elején":1,"felnéztek":1,"érző":1,"felől":1,"esély":1,"felosztása":1,"esett":1,"feltárása":1,"esküé":1,"elkeseredésében":1,"eskűéhez":1,"felvirágoztatjuk":1,"élelmiszerre":1,"fenyegetni":1,"elérhető":1,"fényesebb":1,"élet":1,"ferenc":1,"este":1,"elkezdhessük":1,"estek":1,"férjhez":1,"eszmélt":1,"elkezdődhessen":1,"európában":1,"fiatalságot":1,"életben":1,"fizetés":1,"egyesíteni":1,"fizeti":1,"évben":1,"elkövettek":1,"éve":1,"fogjátok":1,"évei":1,"fognak":1,"éveit":1,"fogott":1,"éveket":1,"fogva":1,"győzelem":1,"földes":1,"egészségügy":1,"főleg":1,"évvel":1,"folytották":1,"ezek":1,"főnökeik":1,"egészségügyi":1,"fontosabb":1,"ezelőtt":1,"fordítunk":1,"ezen":1,"forradalmainkat":1,"életet":1,"forradalmat":1,"ezüstkanálra":1,"források":1,"falur":1,"francia":1,"falura":1,"ellenzékével":1,"fanál":1,"ft-os":1,"fáradtak":1,"fttal":1,"fegyvere":1,"függetlenségért":1,"fegyverét":1,"gazdálkodó":1,"fegyverrel":1,"gazdaságot":1,"fegyvert":1,"gondol":1,"feje":1,"gondolkodhat":1,"fejlesztjük":1,"gondolta":1,"egyetértés":1,"gondosan":1,"fél":1,"gyalázatot":1,"élhettek":1,"gyári":1,"felé":1,"gyerekekért":1,"felébredt":1,"elmegyek":1,"feledjétek":1,"gyermekes":1,"elhisznek":1,"gyógyítást":1,"félelemkeltést":1,"gyógyszerre":1,"egy":1,"egymásban":1,"felelősséggel":1,"évente":1,"évet":1
+};
+
+const ovData = {
+"mi":17,"kell":17,"még":10,"barátaim":10,"tisztelt":9,"magyarok":9,"szabadság":8,"vagyunk":7,"hagyjuk":7,"én":7,"előtt":7,"nemet":6,"számít":6,"jól":6,"magyarországot":6,"háború":6,"ma":6,"ki":6,"12":6,"uraim":5,"nekünk":5,"magyar":5,"magyarország":5,"hölgyeim":5,"adjuk":5,"elég":5,"fidesz":5,"brüsszeli":5,"válaszút":4,"őket":4,"ünneplők":4,"több":4,"millió":4,"jó":4,"fel":4,"állunk":4,"brüsszel":4,"álltam":4,"fognak":4,"nincsenek":3,"pontja":3,"után":3,"sorsot":3,"sohasem":3,"tudja":3,"szavazat":3,"tudni":3,"vagyok":3,"ukrajna":3,"választás":3,"ukrán":3,"ünnepeljük":3,"nemuk":3,"legyen":3,"így":3,"háborút":3,"isten":3,"mit":3,"marad":3,"mondtam":3,"négy":3,"nekik":3,"együtt":3,"európa":3,"48-as":3,"alatt":3,"akarják":3,"győz":3,"béke":3,"28":3,"rezsicsökkentést":2,"ukránok":2,"úgy":2,"sokaság":2,"ünneplők!":2,"nyugalom":2,"tudjuk":2,"sőt":2,"ukrajnába":2,"valóban":2,"pénzeteket":2,"vállalom":2,"ránk":2,"ők":2,"nemzeti":2,"számra":2,"összefogás":2,"nézünk":2,"pénz":2,"szemben":2,"pénzét":2,"olajunkat":2,"ungária":2,"szükségünk":2,"nincs":2,"tervünk":2,"potyognak":2,"olajútját":2,"régi":2,"onnan":2,"saját":2,"történelmi":2,"sokan":2,"óriási":2,"vannak":2,"világ":2,"szabadságharcunkat":2,"szól":2,"hagyom":2,"győztes":2,"hajrá":2,"nap":2,"háborúban":2,"hazánkat":2,"megvédeni":2,"miniszterelnök":2,"mind":2,"hozta":2,"gyűlölet":2,"jár":2,"másik":2,"lehet":2,"megtettük":2,"leszünk":2,"megvédjük":2,"háborúra":2,"mondani":2,"idegen":2,"igazságtalan":2,"jobban":2,"hány":2,"közben":2,"nálunk":2,"kiev":2,"napot":2,"kívánnak":2,"nehéz":2,"korábban":2,"győzelmet":2,"következő":2,"56-os":2,"év":2,"azért":2,"birodalom":2,"ezzel":2,"biztos":2,"elzárja":2,"április":2,"100":2,"brüsszelbe":2,"éves":2,"brüsszelből":2,"be":2,"arról":2,"forradalmat":2,"brüsszeliek":2,"embert":2,"cári":2,"építettük":2,"csupán":2,"európai":2,"gyerekeink":2,"éve":2,"egyetértés":2,"évvel":2,"át":2,"fantasztikus":2,"el":2,"felé":2,"1000er":2,"akarnak":2,"12-én":2,"benneteket":2,"elvegyék":2,"égből":2,"dolog":2,"nemesítő":1,"visszaszereztük":1,"nő":1,"pontjából":1,"tudjam":1,"pontjuk":1,"parlamentre":1,"pontot":1,"vénc":1,"nyer":1,"törni":1,"próbáló":1,"órát":1,"próbatétel":1,"ünnepelhetnék":1,"ráadásul":1,"pénze":1,"rabszolgákká":1,"városává":1,"rád":1,"vidék":1,"ráengedjék":1,"öltözött":1,"rákóci":1,"történni":1,"nyernünk":1,"tudtok":1,"nemzet":1,"ukrajnából":1,"régóta":1,"összeszedjük":1,"rendszerünket":1,"ünnepelünk":1,"reng":1,"utánunk":1,"rezsi":1,"pénzeinket":1,"nyugat-európába":1,"való":1,"riogatnak":1,"végigdolgozzuk":1,"rombolás":1,"vette":1,"nyugatiak":1,"világban":1,"sarat":1,"zászlókat":1,"sikereiket":1,"tömeg":1,"sikerült":1,"önmagában":1,"sincs":1,"tudás":1,"sleek":1,"tudnak":1,"so":1,"udvarnak":1,"nyugatra":1,"nincsen":1,"sokad":1,"ukrajnára":1,"nyugatról":1,"unalmas":1,"nyugdíjasokat":1,"uniós":1,"sokkal":1,"ünnepelni":1,"nyugdíjat":1,"ottomán":1,"sosem":1,"no":1,"nyugodt":1,"úti":1,"stratégiai":1,"vágyunk":1,"ő":1,"választásunk":1,"szabadságharcot":1,"nőni":1,"óceánok":1,"pisloghat":1,"szabadságunkat":1,"vasárnap":1,"nélkül":1,"veletek":1,"nemzetközi":1,"verőfény":1,"szántuk":1,"vezetőink":1,"szánunk":1,"plafon":1,"szárba":1,"visszaküldjük":1,"okoztak":1,"zártak":1,"szavazni":1,"nyakára":1,"szavaztak":1,"tőlünk":1,"szavazunk":1,"tömegek":1,"száz":1,"törődünk":1,"szegény":1,"történet":1,"olajblokáddal":1,"tud":1,"szerénységgel":1,"önmagunkkal":1,"szeretet":1,"németeknek":1,"szeretetből":1,"önöket":1,"szerezni":1,"tudunk":1,"szigetének":1,"ugária":1,"színeinket":1,"újítanunk":1,"szíria":1,"országa":1,"szíriában":1,"ukrajnáért":1,"szivárványos":1,"össze":1,"szívcsakráját":1,"ukránoknak":1,"szívünk":1,"ungáia":1,"szökhet":1,"unióba":1,"szoktuk":1,"ünnepel":1,"zelenski":1,"őszintén":1,"zelenski?":1,"ünnepelnie":1,"zsarolnak":1,"otthon":1,"nép":1,"unokáink":1,"szovjeteknek":1,"űrállomásra":1,"szovjetunió":1,"utántöltés":1,"szüksége":1,"útban":1,"német":1,"útjáról":1,"szűntek":1,"pénzéért":1,"tagállamok":1,"választanunk":1,"találhatnánk":1,"választáson":1,"talpra":1,"választunk":1,"támadtok":1,"válaszúthoz":1,"támaszkodva":1,"vállára":1,"támogatását":1,"pénzünk":1,"tapasztalat":1,"várják":1,"tapintható":1,"várost":1,"társaságot":1,"védeni":1,"tartani":1,"végre":1,"távol":1,"velünk":1,"temessék":1,"vér":1,"tenni":1,"veszélyekből":1,"teret":1,"vezetésével":1,"térség":1,"vezetőkre":1,"tervük":1,"vigyázat":1,"olcsó":1,"világbajnok":1,"teszi":1,"vissza":1,"ti":1,"visszanyerheti":1,"tibor":1,"volna":1,"tietek":1,"zászlók":1,"tiszafolyónk":1,"zászlóra":1,"tiszta":1,"öltél":1,"zsarolással":1,"szolgaság":1,"szorítják":1,"szövetségünket":1,"magyarországnak":1,"mozgassanak":1,"megvédtük":1,"háborús":1,"magára":1,"ijeszteni":1,"megengedni":1,"illik":1,"mindannyiukat":1,"ilyet":1,"néhány":1,"induljanak":1,"magyarnak":1,"invázió":1,"márciusi":1,"iparágak":1,"megmagyarázni":1,"ipari":1,"migrációs":1,"irán":1,"mögé":1,"ismerem":1,"nagy":1,"ismerjük":1,"maffiózók":1,"hagytuk":1,"maguktól":1,"istennek":1,"magyaroknak":1,"izgákra":1,"maia":1,"izgalommentes":1,"mást":1,"íziglen":1,"megindultak":1,"izraeli":1,"megünnepelni":1,"háborúskodás":1,"hősök":1,"járni":1,"milliókat":1,"hálát":1,"hoza":1,"jobb":1,"mondok":1,"háborúhoz":1,"munkahelyet":1,"jobbat":1,"hagyjátok":1,"jöhetett":1,"győzelmi":1,"hányadán":1,"magamat":1,"jött":1,"maguk":1,"jövő":1,"magunknak":1,"jutottál":1,"magyarok!":1,"kapu":1,"magyarország!":1,"kasszához":1,"hiszitek":1,"kasszakulcsot":1,"maradnunk":1,"katona":1,"hivatkozva":1,"katonai":1,"megadni":1,"katonája":1,"meghalni":1,"katonák":1,"megkötött":1,"kdnp":1,"megszálló":1,"kedves":1,"hadsereg":1,"keleten":1,"ment":1,"keleti":1,"miért":1,"keletről":1,"mikor":1,"harapó":1,"milyen":1,"kellene":1,"mindenek":1,"kellő":1,"mire":1,"kellőszerénységgel":1,"hozza":1,"kemény":1,"motoros":1,"keresztény":1,"múlva":1,"később":1,"művészek":1,"készül":1,"nagyszerű":1,"kéz":1,"ideje":1,"kezdődik":1,"igazán":1,"kezdődött":1,"hadigazdálkodásra":1,"harcolok":1,"magabiztos":1,"harcunkra":1,"magamfajta":1,"kievbe":1,"magasba":1,"kievből":1,"magukra":1,"kifogytak":1,"magunkat":1,"kilencszer":1,"helyén":1,"kilovagolunk":1,"hideg":1,"kíméletlenül":1,"magyarokat":1,"kiporoljuk":1,"higgatt":1,"kipróbáltak":1,"magyarországért":1,"királyságot":1,"magyarországon":1,"kitört":1,"mai":1,"harmadik":1,"hitel":1,"kizsebeljék":1,"március":1,"kommunista":1,"márciusiak":1,"komolyan":1,"mások":1,"harsogják":1,"hogyan":1,"kormánynak":1,"megalkuvás":1,"kormányozza":1,"megértse":1,"kormányra":1,"megindítottuk":1,"kormányt":1,"megint":1,"kormányváltást":1,"megkövetelt":1,"körülvesz":1,"megőrizzük":1,"köszöntjük":1,"hogyha":1,"következik":1,"megvan":1,"hatukjuk":1,"holnap":1,"havi":1,"megvívtuk":1,"közelebb":1,"merszünk":1,"közelkeleten":1,"miben":1,"küszöb":1,"migrációra":1,"labancok":1,"migránsokat":1,"látjátok":1,"hősöknek":1,"látott":1,"milliós":1,"láttak":1,"hosszú":1,"láttunk":1,"mindannyiunk":1,"legbiztonságosabb":1,"mindent":1,"legjobb":1,"miniszterelnökként":1,"legnagyobb":1,"hagy":1,"legszebb":1,"mohácsot":1,"legtöbben":1,"mondhatok":1,"haza":1,"hozzánk":1,"legyűrt":1,"mozdultak":1,"hazaküldeni":1,"multik":1,"lelkesen":1,"munkahelyeket":1,"lendülettel":1,"muszlim":1,"lennünk":1,"nadrágjukat":1,"lép":1,"nagyobb":1,"lesznek":1,"ide":1,"leszorítsák":1,"napon":1,"hazának":1,"idők":1,"létre":1,"ifjak":1,"levegőbe":1,"nektek":1,"leverő":1,"leverték":1,"alkotmányos":1,"forr":1,"feledjétek":1,"amiket":1,"előttünk":1,"amire":1,"állam":1,"annyi":1,"fiaikat":1,"annyit":1,"gyerekeinknek":1,"20":1,"emberként":1,"áprilisi":1,"erzték":1,"aranytömböket":1,"fájdalom":1,"aratnunk":1,"felségelű":1,"aratott":1,"fogod-e":1,"aratunk":1,"garancia":1,"ária":1,"elmenni":1,"15e":1,"elveszítettünk":1,"1849-ben":1,"alig":1,"átlépnünk":1,"érkeztünk":1,"1944-ben":1,"euró":1,"azok":1,"évünk":1,"azokat":1,"fej":1,"aztán":1,"felfordult":1,"azzal":1,"fenyegetnek":1,"baj":1,"fog":1,"bajoktól":1,"földjére":1,"bajotok":1,"fungári":1,"bajt":1,"gépfegyvert":1,"2015-ös":1,"ellenes":1,"48-49-ben":1,"elől":1,"bécsi":1,"első":1,"becsületét":1,"alakítson":1,"beengedték":1,"400":1,"behívni":1,"engedtük":1,"13":1,"erejét":1,"békeszerető":1,"erősek":1,"béketűrő":1,"észnél":1,"beköltözött":1,"európába":1,"bele":1,"évekre":1,"belemasíroznak":1,"ezüstért":1,"belépjen":1,"fedezete":1,"beleszagolunk":1,"állt":1,"belőle":1,"felépítettünk":1,"30":1,"felkelnie":1,"bennünket":1,"felülkerekedtünk":1,"bennünket?":1,"fényeset":1,"bérek":1,"fiatal":1,"abba":1,"álltuk":1,"biztonság":1,"fokária":1,"biztonságot":1,"fölött":1,"abból":1,"főterét":1,"biztosan":1,"futsz":1,"blokkolják":1,"gazdaság":1,"adjátok":1,"guruljatok":1,"45":1,"amiből":1,"brüsszelben":1,"ellenség":1,"adjunk":1,"élni":1,"adórendszerét":1,"akarsz":1,"adós":1,"előző":1,"brüsszelnek":1,"alacsony":1,"budapesten":1,"elvinni":1,"budapesti":1,"ember":1,"bürokraták":1,"embernek":1,"bústengere":1,"emlékszem":1,"büszkén":1,"engedjük":1,"büszkeségévé":1,"ennél":1,"ágá":1,"érdemeltünk":1,"célból":1,"érezzük":1,"családok":1,"erők":1,"családokat":1,"erősítheti":1,"családtámogatási":1,"eszetek":1,"császári":1,"eszünk":1,"csatalovak":1,"alkotmányunkat":1,"cseréljék":1,"áll":1,"csináljanak":1,"állama":1,"ajánlom":1,"állandósult":1,"deák":1,"állítottuk":1,"dicsőség":1,"állnánk":1,"dolgot":1,"állok":1,"dolgozik":1,"fegyver":1,"3":1,"fejlődését":1,"döntenek":1,"dörömbölnek":1,"felelőssége":1,"düh":1,"felettünk":1,"dükk":1,"felkelést":1,"eddig":1,"felmászhatna":1,"édesanyák":1,"feltőzelemre":1,"édesanyjának":1,"fenyegetésével":1,"akarja":1,"fényes":1,"egész":1,"ferenc":1,"egyenesen":1,"fiaink":1,"egyes":1,"álltatni":1,"90":1,"fogjuk":1,"egyig":1,"fogóba":1,"egymás":1,"fogtál":1,"egyre":1,"föld":1,"egytől":1,"földön":1,"akarlak":1,"fontos":1,"ejtőerdősök":1,"16":1,"ejtőernyősök":1,"fronton":1,"akármkora":1,"furgonokkal":1,"eladják":1,"gabonát":1,"14":1,"gazdákra":1,"elegünk":1,"gazdasági":1,"elérni":1,"golyót":1,"elérnünk":1,"ame":1,"életben":1,"gyermekeinket":1,"elfogdom":1,"amíg":1,"éljen":1
+};
+
+// Build merged word list
+const allWords = new Set([...Object.keys(mpData), ...Object.keys(ovData)]);
+const merged = [];
+allWords.forEach(w => {
+  const mc = mpData[w] || 0;
+  const oc = ovData[w] || 0;
+  const mp_per = parseFloat(((mc / MP_TOTAL) * 1000).toFixed(1));
+  const ov_per = parseFloat(((oc / OV_TOTAL) * 1000).toFixed(1));
+  merged.push({ word: w, mp_count: mc, ov_count: oc, mp_per, ov_per, diff: Math.abs(mp_per - ov_per) });
+});
+
+// ============================================================
+// SEARCH
+// ============================================================
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if (!q) return;
+  const mc = mpData[q] || 0;
+  const oc = ovData[q] || 0;
+  const mp_per = ((mc / MP_TOTAL) * 1000).toFixed(1);
+  const ov_per = ((oc / OV_TOTAL) * 1000).toFixed(1);
+  const maxPer = Math.max(parseFloat(mp_per), parseFloat(ov_per));
+
+  document.getElementById('word-mp').textContent = q;
+  document.getElementById('word-ov').textContent = q;
+  document.getElementById('count-mp').textContent = mc ? `${mc} előfordulás` : 'Nem szerepel a beszédben';
+  document.getElementById('count-ov').textContent = oc ? `${oc} előfordulás` : 'Nem szerepel a beszédben';
+  document.getElementById('per-mp').textContent = mp_per;
+  document.getElementById('per-ov').textContent = ov_per;
+
+  setTimeout(() => {
+    document.getElementById('bar-mp').style.width = maxPer > 0 ? (parseFloat(mp_per) / maxPer * 100) + '%' : '0%';
+    document.getElementById('bar-ov').style.width = maxPer > 0 ? (parseFloat(ov_per) / maxPer * 100) + '%' : '0%';
+  }, 50);
+
+  document.getElementById('searchResult').style.display = 'block';
+}
+
+// ============================================================
+// TOP 15 CHARTS
+// ============================================================
+function buildCharts() {
+  const mpTop = Object.entries(mpData).sort((a,b) => b[1]-a[1]).slice(0,15);
+  const ovTop = Object.entries(ovData).sort((a,b) => b[1]-a[1]).slice(0,15);
+  const mpMax = mpTop[0][1] / MP_TOTAL * 1000;
+  const ovMax = ovTop[0][1] / OV_TOTAL * 1000;
+
+  function renderBars(data, total, max, containerId, cls) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = data.map(([word, count], i) => {
+      const per = (count / total * 1000).toFixed(1);
+      const pct = (parseFloat(per) / max * 100).toFixed(1);
+      return `<div class="bar-row" style="animation-delay:${i*0.05}s">
+        <div class="bar-word">${word}</div>
+        <div class="bar-track">
+          <div class="bar-fill ${cls}" style="width:0%" data-w="${pct}">${per}</div>
+        </div>
+        <div class="bar-num">${count}×</div>
+      </div>`;
+    }).join('');
+    setTimeout(() => {
+      el.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.dataset.w + '%');
+    }, 100);
+  }
+
+  renderBars(mpTop, MP_TOTAL, mpMax, 'chart-mp', 'mp');
+  renderBars(ovTop, OV_TOTAL, ovMax, 'chart-ov', 'ov');
+}
+
+// ============================================================
+// TABLE
+// ============================================================
+let currentSort = 'mp_per';
+let currentPage = 1;
+const PAGE_SIZE = 50;
+
+function setSortAndRender(s) {
+  currentSort = s;
+  currentPage = 1;
+  renderTable();
+}
+
+function renderTable() {
+  const sort = document.getElementById('sortSelect').value;
+  const filter = document.getElementById('tableSearch').value.trim().toLowerCase();
+  currentSort = sort;
+
+  let data = merged.filter(r => !filter || r.word.includes(filter));
+
+  if (sort === 'mp_per') data.sort((a,b) => b.mp_per - a.mp_per);
+  else if (sort === 'ov_per') data.sort((a,b) => b.ov_per - a.ov_per);
+  else if (sort === 'word') data.sort((a,b) => a.word.localeCompare(b.word, 'hu'));
+  else if (sort === 'diff') data.sort((a,b) => b.diff - a.diff);
+
+  const total = data.length;
+  const pages = Math.ceil(total / PAGE_SIZE);
+  currentPage = Math.min(currentPage, pages || 1);
+  const slice = data.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE);
+
+  const mpBarMax = Math.max(...merged.map(r=>r.mp_per));
+  const ovBarMax = Math.max(...merged.map(r=>r.ov_per));
+
+  document.getElementById('tableCount').textContent = `${total} szó`;
+  document.getElementById('tableBody').innerHTML = slice.map((r, i) => {
+    const mpW = r.mp_per > 0 ? Math.round(r.mp_per / mpBarMax * 60) : 0;
+    const ovW = r.ov_per > 0 ? Math.round(r.ov_per / ovBarMax * 60) : 0;
+    return `<tr>
+      <td class="td-word">${(currentPage-1)*PAGE_SIZE+i+1}. ${r.word}</td>
+      <td class="td-mp">${r.mp_count || '—'}</td>
+      <td class="td-mp"><span class="mini-bar" style="width:${mpW}px;background:var(--mp)"></span>${r.mp_per}</td>
+      <td class="td-ov">${r.ov_count || '—'}</td>
+      <td class="td-ov"><span class="mini-bar" style="width:${ovW}px;background:var(--ov)"></span>${r.ov_per}</td>
+      <td style="color:var(--muted)">${r.diff.toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pag = document.getElementById('pagination');
+  let btns = '';
+  for (let p = 1; p <= pages; p++) {
+    if (pages > 10 && p > 3 && p < pages-2 && Math.abs(p-currentPage) > 2) {
+      if (p === 4 || p === pages-3) btns += `<span style="color:var(--muted);font-size:0.6rem">…</span>`;
+      continue;
+    }
+    btns += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  }
+  pag.innerHTML = btns;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderTable();
+  document.querySelector('.browse-section').scrollIntoView({behavior:'smooth'});
+}
+
+// ============================================================
+// INIT
+// ============================================================
+buildCharts();
+renderTable();
+</script>
+</body>
+</html>
